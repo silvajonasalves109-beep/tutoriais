@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tutoriais @mindloop_u</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root { --papel:#efe7d3; --fundo:#f6ecd6; --tinta:#1f2a55; --vermelho:#c5232a; --verde:#2f9e62;
+  --display:"Alfa Slab One", Georgia, serif; --corpo:"Poppins", system-ui, sans-serif; color-scheme: light; }
+* { box-sizing: border-box; } html, body { margin: 0; }
+body { background: var(--fundo); background-image: repeating-linear-gradient(90deg, rgba(31,42,85,.035) 0 26px, transparent 26px 60px); color: var(--tinta); font: 400 17px/1.6 var(--corpo); }
+main { max-width: 640px; margin: 0 auto; padding: 32px 18px 56px; display: flex; flex-direction: column; gap: 22px; }
+h1 { font: 400 clamp(32px, 9vw, 44px)/1.1 var(--display); margin: 0; text-wrap: balance; }
+h1 em { font-style: normal; color: var(--vermelho); }
+p { margin: 0; }
+.lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.lista a { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; background: var(--papel); border-radius: 6px; padding: 18px 20px; color: inherit; text-decoration: none; box-shadow: 0 6px 0 -2px rgba(40,25,60,.10), 0 10px 22px rgba(40,25,60,.16); }
+.lista a:hover { transform: rotate(-.4deg); } .lista a:focus-visible { outline: 3px solid var(--vermelho); outline-offset: 3px; }
+.lista b { font: 400 20px/1.2 var(--display); display: block; }
+.lista span { font-size: 14px; }
+.seta { font: 400 24px var(--display); color: var(--vermelho); }
+.novo { background: var(--verde); color: #fff; font: 600 12px var(--corpo); padding: 2px 8px; border-radius: 999px; margin-left: 6px; vertical-align: middle; }
+.siga { align-self: center; font: 400 20px var(--display); background: var(--vermelho); color: #fff; text-decoration: none; padding: 12px 30px; border-radius: 999px; }
+@media (prefers-reduced-motion: reduce) { .lista a:hover { transform: none; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Tutoriais do <em>@mindloop_u</em></h1>
+  <p>Cada vídeo da série vira um passo a passo aqui. Escolha o seu.</p>
+  <ul class="lista">
+    <li><a href="/codigo"><div><b>Vídeo feito de código <span class="novo">NOVO</span></b><span>Do roteiro ao MP4 com o Claude Code, sem editor e sem câmera.</span></div><span class="seta" aria-hidden="true">→</span></a></li>
+  </ul>
+  <a class="siga" href="https://www.instagram.com/mindloop_u/">SIGA @MINDLOOP_U</a>
+</main>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vídeo feito de código</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Mundo de papel recortado do vídeo: papel creme, tinta azul-marinho, vermelho de destaque, verde de "feito" */
+  --papel: #efe7d3;
+  --fundo: #f6ecd6;
+  --tinta: #1f2a55;
+  --vermelho: #c5232a;
+  --verde: #2f9e62;
+  --tela: #1b1a1f;
+  --display: "Alfa Slab One", Georgia, serif;
+  --corpo: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* layout: uma coluna estreita para celular, cada passo é uma tira de papel numerada */
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--fundo);
+  background-image: repeating-linear-gradient(90deg, rgba(31,42,85,.035) 0 26px, transparent 26px 60px);
+  color: var(--tinta);
+  font: 400 17px/1.6 var(--corpo);
+}
+main { max-width: 640px; margin: 0 auto; padding: 28px 18px 56px; display: flex; flex-direction: column; gap: 22px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 400; line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(32px, 9vw, 46px); }
+h1 em { font-style: normal; color: var(--vermelho); }
+h2 { font-size: 24px; }
+h3 { font-size: 19px; }
+p { margin: 0; }
+a { color: var(--vermelho); font-weight: 600; }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--vermelho); outline-offset: 3px; }
+
+.selo { align-self: flex-start; font-family: var(--display); font-size: 14px; letter-spacing: .04em; background: var(--vermelho); color: #fff; padding: 6px 14px; border-radius: 999px; transform: rotate(-2deg); }
+.intro { display: flex; flex-direction: column; gap: 14px; }
+.intro p { font-size: 18px; }
+
+.tira {
+  background: var(--papel);
+  border-radius: 6px;
+  padding: 20px 20px 22px;
+  box-shadow: 0 6px 0 -2px rgba(40,25,60,.10), 0 10px 22px rgba(40,25,60,.16);
+}
+.resumo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; }
+.resumo div { display: flex; flex-direction: column; gap: 2px; }
+.resumo b { font-family: var(--display); font-weight: 400; font-size: 22px; }
+.resumo span { font-size: 13px; line-height: 1.3; }
+
+ol.passos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; counter-reset: passo; }
+ol.passos > li { counter-increment: passo; display: grid; grid-template-columns: 46px 1fr; gap: 14px; align-items: start; }
+ol.passos > li:nth-child(odd) .tira { transform: rotate(-.4deg); }
+ol.passos > li:nth-child(even) .tira { transform: rotate(.4deg); }
+.num { width: 46px; height: 46px; border-radius: 50%; background: var(--tinta); color: #fff; display: grid; place-items: center; font-family: var(--display); font-size: 20px; margin-top: 6px; }
+.num::before { content: counter(passo); }
+.tira h3 { margin-bottom: 8px; }
+.tira p + p { margin-top: 8px; }
+.dica { font-size: 15px; border-left: 4px solid var(--verde); padding-left: 10px; }
+
+.prompt { background: var(--tela); color: #f2f0ea; border-radius: 10px; padding: 16px; font-size: 15px; line-height: 1.55; white-space: pre-wrap; margin: 12px 0 0; }
+.prompt .marca { color: #d97757; font-weight: 600; }
+.copiar { margin-top: 12px; font: 400 16px var(--display); background: var(--vermelho); color: #fff; border: 0; border-radius: 999px; padding: 12px 22px; cursor: pointer; }
+.copiar:hover { filter: brightness(1.08); }
+.copiado { margin-left: 10px; font-size: 14px; color: var(--verde); font-weight: 600; }
+
+.duvidas { display: flex; flex-direction: column; gap: 14px; }
+.duvidas h3 { font-size: 17px; margin-bottom: 4px; }
+
+.siga { text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.botao-siga { display: inline-block; font-family: var(--display); font-weight: 400; font-size: 20px; background: var(--vermelho); color: #fff; text-decoration: none; padding: 12px 30px; border-radius: 999px; }
+footer { font-size: 13px; text-align: center; opacity: .75; }
+@media (max-width: 400px) { ol.passos > li { grid-template-columns: 1fr; } .num { margin: 0; } }
+@media (prefers-reduced-motion: reduce) { .tira, .selo { transform: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <a href="/" style="font-size:14px">← Todos os tutoriais</a>
+  <span class="selo">VOCÊ COMENTOU "CÓDIGO"</span>
+
+  <section class="intro">
+    <h1>Como fazer um vídeo <em>feito de código</em></h1>
+    <p>O vídeo que você viu não foi editado e nenhuma câmera foi ligada. Ele foi desenhado por código, escrito pelo Claude Code a partir de uma conversa em português. Aqui está o caminho, do zero ao vídeo pronto.</p>
+  </section>
+
+  <div class="tira resumo" aria-label="Resumo">
+    <div><b>7</b><span>passos</span></div>
+    <div><b>0</b><span>linhas de código escritas por você</span></div>
+    <div><b>~1 min</b><span>de vídeo vertical</span></div>
+  </div>
+
+  <ol class="passos">
+    <li><div class="num" aria-hidden="true"></div><div class="tira">
+      <h3>Tenha o Claude Code</h3>
+      <p>Assine o <b>Claude Pro</b>, o plano de entrada que já inclui o Claude Code (o plano gratuito não inclui). Baixe o app do Claude para computador em <a href="https://claude.com/download">claude.com/download</a>, entre com a sua conta e abra a aba <b>Code</b>.</p>
+      <p class="dica">Funciona no Mac e no Windows, sem precisar mexer no terminal.</p>
+    </div></li>
+
+    <li><div class="num" aria-hidden="true"></div><div class="tira">
+      <h3>Crie a pasta do vídeo</h3>
+      <p>Crie uma pasta no computador, por exemplo <b>Documentos/meu-video</b>, e abra essa pasta no Claude Code. Tudo do vídeo vai ficar ali: roteiro, voz, código e o MP4 final.</p>
+    </div></li>
+
+    <li><div class="num" aria-hidden="true"></div><div class="tira">
+      <h3>Escreva o roteiro (com o Claude)</h3>
+      <p>Peça: <i>"Escreve um roteiro de 50 segundos sobre [seu tema], com um gancho forte na primeira frase e uma virada no fim. Grava em roteiro.txt."</i></p>
+      <p class="dica">Uns 150 palavras dão cerca de 1 minuto de narração.</p>
+    </div></li>
+
+    <li><div class="num" aria-hidden="true"></div><div class="tira">
+      <h3>Gere a voz</h3>
+      <p>Cole o roteiro numa ferramenta de voz por IA, como o <b>ElevenLabs</b>, escolha uma voz em português, baixe o MP3 e salve na pasta como <b>narracao.mp3</b>.</p>
+      <p class="dica">O plano gratuito serve para testar. Para postar com fins comerciais, use um plano pago.</p>
+    </div></li>
+
+    <li><div class="num" aria-hidden="true"></div><div class="tira">
+      <h3>Peça o vídeo</h3>
+      <p>Cole este pedido no Claude Code. Ele instala o que faltar, descobre o tempo de cada palavra da sua voz e escreve o código que desenha cada quadro.</p>
+      <pre class="prompt" id="prompt"><span class="marca">&gt;</span> Quero um vídeo vertical (1080×1920, 30 quadros por segundo), animado em 2D no estilo papel recortado, todo desenhado por código. Nesta pasta estão o roteiro.txt e a narracao.mp3.
+1. Instale o que precisar (por exemplo Node e ffmpeg).
+2. Descubra o tempo de cada palavra da narração.
+3. Monte a cena: cenário, personagem, câmera que se move e legenda palavra por palavra. Cada ação começa na palavra certa da voz.
+4. Antes do vídeo final, me mostre uma folha com um quadro a cada 2 segundos para eu aprovar.
+5. Depois gere o MP4 com a voz e efeitos sonoros baixinhos.</pre>
+      <button class="copiar" id="copiar" type="button">Copiar pedido</button><span class="copiado" id="copiado" role="status"></span>
+    </div></li>
+
+    <li><div class="num" aria-hidden="true"></div><div class="tira">
+      <h3>Aprove a prévia</h3>
+      <p>Olhe a folha de quadros e peça mudanças em português mesmo: <i>"troca a camiseta para azul"</i>, <i>"a câmera chega mais perto na virada"</i>, <i>"tira esse texto de cima do rosto"</i>. O Claude ajusta o código e mostra de novo.</p>
+    </div></li>
+
+    <li><div class="num" aria-hidden="true"></div><div class="tira">
+      <h3>Gere o vídeo e poste</h3>
+      <p>Com a prévia aprovada, peça o vídeo final. O MP4 sai na pasta, pronto para Reels, TikTok ou Shorts. Assista uma vez antes de postar para conferir o som.</p>
+    </div></li>
+  </ol>
+
+  <section class="tira duvidas">
+    <h2>Dúvidas rápidas</h2>
+    <div><h3>Preciso saber programar?</h3><p>Não. Você conversa em português e o Claude escreve e roda o código. Você só aprova o que vê.</p></div>
+    <div><h3>Quanto tempo leva?</h3><p>O primeiro vídeo leva mais, porque o Claude monta tudo do zero. Depois, você reaproveita a pasta e só troca roteiro, voz e cenário.</p></div>
+    <div><h3>Posso usar música?</h3><p>Pode, desde que seja música livre de direitos. Coloque o MP3 na pasta e peça para o Claude misturar baixinho por baixo da voz.</p></div>
+    <div><h3>Dá para usar meu rosto ou vídeos reais?</h3><p>Esse método é todo desenhado. Para filmagem de verdade, um editor comum ainda é o caminho.</p></div>
+  </section>
+
+  <section class="siga">
+    <h2>Quer mais vídeos assim?</h2>
+    <p>Todo vídeo novo da série vira um passo a passo.</p>
+    <a class="botao-siga" href="https://www.instagram.com/mindloop_u/">SIGA @MINDLOOP_U</a>
+  </section>
+
+  <footer>Claude e Claude Code são produtos da Anthropic. ElevenLabs é marca de seus donos. Os planos e preços podem mudar; confira no site de cada serviço.</footer>
+</main>
+<script>
+document.getElementById('copiar').addEventListener('click', async () => {
+  const texto = document.getElementById('prompt').innerText.replace(/^>\s*/, '');
+  const aviso = document.getElementById('copiado');
+  try { await navigator.clipboard.writeText(texto); aviso.textContent = 'Copiado!'; }
+  catch (e) {
+    const r = document.createRange(); r.selectNodeContents(document.getElementById('prompt'));
+    const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    aviso.textContent = 'Texto selecionado: toque em Copiar.';
+  }
+});
+</script>
+</body>
+</html>
