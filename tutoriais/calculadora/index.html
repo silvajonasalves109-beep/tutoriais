@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculadora da média do ENEM · @mindloop_u</title>
+<meta name="description" content="Calcule sua média do ENEM, simples ou com os pesos do seu curso no Sisu, e veja quanto falta para a nota de corte.">
+<meta name="theme-color" content="#0b1120">
+<meta property="og:title" content="Calculadora da média do ENEM">
+<meta property="og:description" content="Média simples, pesos do Sisu e quanto falta para a nota de corte. Feita pela @mindloop_u.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* mesma identidade do vídeo: azul-marinho, âmbar de destaque, azul e verde-água de apoio */
+  --bg0: #070b14; --bg1: #0f1726; --card: #131c2e; --card2: #1a2539; --line: rgba(255,255,255,.09);
+  --ink: #f3f5fa; --mu: #8a95ad; --amb: #f2b84b; --blue: #5fb4ff; --teal: #2ec4b6; --grn: #3ddc84; --red: #ff4d5e; --lil: #c792ff;
+  --r: 18px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body {
+  min-height: 100vh; color: var(--ink); font: 500 16px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: radial-gradient(900px 500px at 50% -120px, rgba(242,184,75,.16), transparent 70%), linear-gradient(var(--bg1), var(--bg0) 60%);
+  background-attachment: fixed;
+}
+body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1;
+  background-image: linear-gradient(rgba(95,180,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(95,180,255,.05) 1px, transparent 1px); background-size: 40px 40px; }
+main { max-width: 560px; margin: 0 auto; padding: 22px 16px 120px; display: flex; flex-direction: column; gap: 18px; }
+h1, h2 { margin: 0; font-weight: 900; letter-spacing: -.02em; text-wrap: balance; }
+h1 { font-size: clamp(30px, 8.5vw, 40px); line-height: 1.05; }
+h1 em { font-style: normal; color: var(--amb); }
+h2 { font-size: 20px; }
+p { margin: 0; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--amb); outline-offset: 2px; }
+
+.topo { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.marca { font-size: 13px; font-weight: 800; color: var(--mu); background: rgba(255,255,255,.06); padding: 6px 12px; border-radius: 999px; text-decoration: none; }
+.sub { color: var(--mu); font-size: 15px; }
+
+/* modo */
+.modo { display: grid; grid-template-columns: 1fr 1fr; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 5px; position: relative; }
+.modo button { position: relative; z-index: 1; border: 0; background: none; padding: 11px 8px; font-weight: 800; font-size: 15px; color: var(--mu); border-radius: 999px; transition: color .2s; }
+.modo button[aria-pressed="true"] { color: #0b1120; }
+.modo .pill { position: absolute; top: 5px; bottom: 5px; left: 5px; width: calc(50% - 5px); background: var(--amb); border-radius: 999px; transition: transform .28s cubic-bezier(.3,1.4,.5,1); }
+.modo[data-m="pesos"] .pill { transform: translateX(100%); }
+
+/* presets */
+.presets { display: none; flex-direction: column; gap: 8px; }
+.pesos .presets { display: flex; }
+.chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; border: 1px solid var(--line); background: var(--card); padding: 8px 14px; border-radius: 999px; font-weight: 700; font-size: 14px; white-space: nowrap; }
+.chip[aria-pressed="true"] { background: rgba(242,184,75,.15); border-color: var(--amb); color: var(--amb); }
+.nota-mini { font-size: 12.5px; color: var(--mu); }
+
+/* áreas */
+.areas { display: flex; flex-direction: column; gap: 10px; }
+.area { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 14px 12px; display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; border-left: 5px solid var(--c); transition: border-color .2s; }
+.area .nome { font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+.area .nome small { font-weight: 600; color: var(--mu); font-size: 12px; }
+.area input[type=number] { width: 104px; text-align: right; background: var(--card2); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; font-weight: 900; font-size: 22px; font-variant-numeric: tabular-nums; -moz-appearance: textfield; }
+.area input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+.area input[type=number]:focus { border-color: var(--c); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 30%, transparent); }
+.area input[type=number].erro { border-color: var(--red); }
+.area input[type=range] { grid-column: 1 / -1; width: 100%; -webkit-appearance: none; appearance: none; height: 8px; border-radius: 99px; background: linear-gradient(90deg, var(--c) var(--p, 0%), rgba(255,255,255,.08) var(--p, 0%)); }
+.area input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 5px solid var(--c); box-shadow: 0 2px 8px rgba(0,0,0,.5); }
+.area input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 5px solid var(--c); }
+.peso { grid-column: 1 / -1; display: none; align-items: center; justify-content: space-between; gap: 10px; padding-top: 6px; border-top: 1px dashed var(--line); }
+.pesos .peso { display: flex; }
+.peso span { font-size: 13.5px; color: var(--mu); font-weight: 700; }
+.step { display: flex; align-items: center; background: var(--card2); border-radius: 999px; border: 1px solid var(--line); }
+.step button { width: 38px; height: 34px; border: 0; background: none; font-weight: 900; font-size: 20px; color: var(--c); }
+.step output { min-width: 40px; text-align: center; font-weight: 900; font-variant-numeric: tabular-nums; }
+
+/* resultado */
+.res { background: linear-gradient(160deg, #1b2740, #111a2b); border: 1px solid rgba(242,184,75,.35); border-radius: 24px; padding: 20px 18px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 20px 50px rgba(0,0,0,.45); }
+.gauge { position: relative; width: min(260px, 70vw); aspect-ratio: 2 / 1.15; margin: 0 auto; }
+.gauge svg { width: 100%; height: 100%; overflow: visible; }
+.gauge .num { position: absolute; left: 0; right: 0; bottom: 4px; text-align: center; }
+.gauge .num b { display: block; font-size: clamp(48px, 15vw, 64px); font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; color: var(--amb); text-shadow: 0 0 30px rgba(242,184,75,.4); }
+.gauge .num span { font-size: 13px; color: var(--mu); font-weight: 800; letter-spacing: .06em; }
+.compara { text-align: center; font-size: 14px; color: var(--mu); min-height: 21px; }
+.compara b { color: var(--ink); }
+.compara .up { color: var(--grn); } .compara .down { color: var(--red); }
+.barra { display: flex; height: 16px; border-radius: 99px; overflow: hidden; background: rgba(255,255,255,.06); }
+.barra i { display: block; height: 100%; background: var(--c); transition: width .4s ease; }
+.leg { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 12.5px; color: var(--mu); }
+.leg span::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 3px; background: var(--c); margin-right: 5px; }
+.selos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.selo { background: rgba(255,255,255,.05); border-radius: 14px; padding: 10px 6px; text-align: center; font-size: 12px; color: var(--mu); line-height: 1.3; }
+.selo b { display: block; font-size: 14px; color: var(--ink); margin-bottom: 2px; }
+.selo.ok b::before { content: "✓ "; color: var(--grn); }
+.selo.no b::before { content: "× "; color: var(--red); }
+.selo.ok { box-shadow: inset 0 0 0 1px rgba(61,220,132,.35); }
+.selo.no { box-shadow: inset 0 0 0 1px rgba(255,77,94,.35); }
+
+/* meta */
+.meta { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.meta-linha { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.meta-linha label { font-weight: 700; color: var(--mu); font-size: 14px; }
+.meta input { width: 110px; text-align: right; background: var(--card2); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; font-weight: 900; font-size: 20px; -moz-appearance: textfield; }
+.meta input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.status { font-weight: 800; font-size: 15px; }
+.falta { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.falta li { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,.04); }
+.falta li b { font-variant-numeric: tabular-nums; }
+.falta li.impossivel b { color: var(--mu); font-weight: 700; }
+
+/* ações */
+.acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn { border: 0; border-radius: 14px; padding: 14px; font-weight: 900; font-size: 15px; text-align: center; text-decoration: none; }
+.btn.pri { background: var(--amb); color: #0b1120; }
+.btn.sec { background: var(--card2); color: var(--ink); border: 1px solid var(--line); }
+.btn:active { transform: scale(.97); }
+
+details { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; }
+summary { font-weight: 800; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; color: var(--amb); font-size: 22px; font-weight: 900; transition: transform .2s; }
+details[open] summary::after { transform: rotate(45deg); }
+details p { margin-top: 10px; color: #c4cbdb; font-size: 14.5px; }
+.rodape { text-align: center; color: var(--mu); font-size: 12.5px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.siga { background: var(--amb); color: #0b1120; text-decoration: none; font-weight: 900; padding: 13px 30px; border-radius: 999px; font-size: 16px; }
+
+/* barra fixa com a média, aparece quando o cartão de resultado sai da tela */
+.flutua { position: fixed; left: 50%; bottom: max(14px, env(safe-area-inset-bottom)); transform: translate(-50%, 140%); transition: transform .3s cubic-bezier(.3,1.3,.5,1); background: rgba(19,28,46,.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(242,184,75,.4); border-radius: 999px; padding: 10px 22px; display: flex; gap: 10px; align-items: baseline; box-shadow: 0 10px 30px rgba(0,0,0,.5); z-index: 5; white-space: nowrap; opacity: 0; }
+.flutua.on { transform: translate(-50%, 0); opacity: 1; }
+.flutua span { color: var(--mu); font-weight: 800; font-size: 13px; }
+.flutua b { color: var(--amb); font-size: 24px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.toast { position: fixed; left: 50%; top: 18px; transform: translate(-50%, -150%); background: var(--grn); color: #0b1120; font-weight: 900; padding: 10px 18px; border-radius: 999px; transition: transform .3s, opacity .3s; z-index: 6; opacity: 0; pointer-events: none; }
+.toast.on { transform: translate(-50%, 0); opacity: 1; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="topo">
+    <a class="marca" href="/">@mindloop_u · tutoriais</a>
+    <a class="marca" href="https://www.instagram.com/mindloop_u/">seguir</a>
+  </div>
+
+  <header style="display:flex;flex-direction:column;gap:8px">
+    <h1>Calculadora da média do <em>ENEM</em></h1>
+    <p class="sub">Coloque suas 5 notas. Veja a média simples, a média com os pesos do seu curso e quanto falta para a nota de corte.</p>
+  </header>
+
+  <div class="modo" id="modo" data-m="simples" role="group" aria-label="Tipo de média">
+    <span class="pill" aria-hidden="true"></span>
+    <button type="button" data-m="simples" aria-pressed="true">Média simples</button>
+    <button type="button" data-m="pesos" aria-pressed="false">Com pesos (Sisu)</button>
+  </div>
+
+  <div id="app">
+    <section class="presets" aria-label="Pesos prontos" style="margin-bottom:12px">
+      <div class="chips" id="chips"></div>
+      <p class="nota-mini">Os pesos prontos são exemplos comuns. Cada faculdade define os seus: confira no Sisu ou no edital e ajuste com o + e o −.</p>
+    </section>
+    <section class="areas" id="areas" aria-label="Suas notas"></section>
+  </div>
+
+  <section class="res" id="res" aria-live="polite">
+    <div class="gauge">
+      <svg viewBox="0 0 200 115" aria-hidden="true">
+        <defs><linearGradient id="gg" x1="0" x2="1"><stop offset="0" stop-color="#5fb4ff"/><stop offset=".6" stop-color="#2ec4b6"/><stop offset="1" stop-color="#f2b84b"/></linearGradient></defs>
+        <path d="M14 104 A86 86 0 0 1 186 104" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="16" stroke-linecap="round"/>
+        <path id="arc" d="M14 104 A86 86 0 0 1 186 104" fill="none" stroke="url(#gg)" stroke-width="16" stroke-linecap="round" pathLength="1000" stroke-dasharray="0 1000"/>
+        <line id="m450" x1="0" y1="0" x2="0" y2="0" stroke="#fff" stroke-width="2" opacity=".5"/>
+      </svg>
+      <div class="num"><b id="media">0</b><span id="rot">MÉDIA SIMPLES</span></div>
+    </div>
+    <p class="compara" id="compara"></p>
+    <div>
+      <div class="barra" id="barra"></div>
+      <div class="leg" id="leg" style="margin-top:8px"></div>
+    </div>
+    <div class="selos">
+      <div class="selo" id="sProuni"><b>ProUni</b>média 450+ e redação acima de 0</div>
+      <div class="selo" id="sFies"><b>Fies</b>média 450+ e redação acima de 0</div>
+      <div class="selo" id="sSisu"><b>Sisu</b>redação não pode ser zero</div>
+    </div>
+  </section>
+
+  <section class="meta">
+    <h2>Quanto falta para a nota de corte?</h2>
+    <div class="meta-linha">
+      <label for="corte">Nota de corte do seu curso</label>
+      <input id="corte" type="number" inputmode="decimal" min="0" max="1000" step="0.1" placeholder="ex.: 720">
+    </div>
+    <p class="status" id="status">Digite a nota de corte para ver a simulação.</p>
+    <ul class="falta" id="falta"></ul>
+  </section>
+
+  <div class="acoes">
+    <button class="btn pri" id="share" type="button">Compartilhar minha média</button>
+    <button class="btn sec" id="limpar" type="button">Limpar notas</button>
+  </div>
+
+  <details>
+    <summary>Por que a minha nota não é o número de acertos?</summary>
+    <p>As provas objetivas usam a TRI (Teoria de Resposta ao Item). Cada questão tem três medidas: dificuldade, o quanto separa quem sabe de quem não sabe, e a chance de acerto no chute. Acertar as fáceis e errar as difíceis é coerente. Errar fáceis e acertar difíceis parece chute, e esses acertos valem menos. Por isso, o mesmo número de acertos pode dar notas diferentes, e o mínimo e o máximo mudam a cada área e a cada ano.</p>
+  </details>
+  <details>
+    <summary>Como funciona a nota da redação?</summary>
+    <p>São 5 competências de até 200 pontos, somando até 1.000. Dois corretores avaliam o texto. Se a diferença entre eles passar de 100 pontos no total ou de 80 numa competência, entra um terceiro corretor.</p>
+  </details>
+  <details>
+    <summary>Como a média com pesos é calculada?</summary>
+    <p>Cada nota é multiplicada pelo peso da área, os resultados são somados e o total é dividido pela soma dos pesos. Exemplo: Matemática 700 com peso 3 conta como três notas 700. No Sisu, cada curso de cada faculdade define os próprios pesos (e às vezes nota mínima por área).</p>
+  </details>
+
+  <footer class="rodape">
+    <p>Calculadora educativa. Os resultados são estimativas e não substituem as regras oficiais do Inep, do Sisu, do ProUni e do Fies. Suas notas ficam só no seu celular.</p>
+    <a class="siga" href="https://www.instagram.com/mindloop_u/">SEGUE A @MINDLOOP_U</a>
+    <p>Fontes: Inep, MEC e editais do Sisu, ProUni e Fies.</p>
+  </footer>
+</main>
+
+<div class="flutua" id="flutua" aria-hidden="true"><span id="frot">MÉDIA</span><b id="fmed">0</b></div>
+<div class="toast" id="toast" role="status">Copiado!</div>
+
+<script>
+(() => {
+  const AREAS = [
+    { id: 'L', nome: 'Linguagens', sub: '45 questões', c: '#5fb4ff' },
+    { id: 'H', nome: 'Humanas', sub: '45 questões', c: '#c792ff' },
+    { id: 'N', nome: 'Natureza', sub: '45 questões', c: '#2ec4b6' },
+    { id: 'M', nome: 'Matemática', sub: '45 questões', c: '#ff8a5c' },
+    { id: 'R', nome: 'Redação', sub: 'até 1.000', c: '#f2b84b' },
+  ];
+  // exemplos típicos de pesos (L, H, N, M, R) — variam por faculdade
+  const PRESETS = [
+    { nome: 'Sem pesos', p: [1, 1, 1, 1, 1] },
+    { nome: 'Medicina', p: [1, 1, 3, 2, 2] },
+    { nome: 'Engenharia', p: [1, 1, 2, 3, 1] },
+    { nome: 'Computação', p: [1, 1, 1, 3, 1] },
+    { nome: 'Direito', p: [2, 3, 1, 1, 2] },
+    { nome: 'Psicologia', p: [2, 2, 2, 1, 2] },
+    { nome: 'Administração', p: [2, 2, 1, 2, 1] },
+    { nome: 'Pedagogia', p: [2, 2, 1, 1, 2] },
+  ];
+  const $ = id => document.getElementById(id);
+  const fmt = (v, d = 1) => v.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const store = { get() { try { return JSON.parse(localStorage.getItem('ml-enem') || 'null'); } catch (e) { return null; } }, set(v) { try { localStorage.setItem('ml-enem', JSON.stringify(v)); } catch (e) {} } };
+
+  const saved = store.get() || {};
+  const st = {
+    modo: saved.modo || 'simples',
+    notas: saved.notas || { L: '', H: '', N: '', M: '', R: '' },
+    pesos: saved.pesos || [1, 1, 1, 1, 1],
+    preset: saved.preset ?? 0,
+    corte: saved.corte || '',
+  };
+
+  // ----- monta as áreas -----
+  const areasEl = $('areas');
+  AREAS.forEach((a, i) => {
+    const el = document.createElement('div');
+    el.className = 'area'; el.style.setProperty('--c', a.c);
+    el.innerHTML = `
+      <label class="nome" for="n${a.id}">${a.nome} <small>${a.sub}</small></label>
+      <input id="n${a.id}" type="number" inputmode="decimal" min="0" max="1000" step="0.1" placeholder="0">
+      <input id="r${a.id}" type="range" min="0" max="1000" step="1" aria-label="${a.nome}, deslize">
+      <div class="peso"><span>Peso de ${a.nome}</span>
+        <div class="step"><button type="button" data-d="-1" aria-label="diminuir peso">−</button><output id="p${a.id}">1</output><button type="button" data-d="1" aria-label="aumentar peso">+</button></div>
+      </div>`;
+    areasEl.appendChild(el);
+    const num = el.querySelector('input[type=number]'), rng = el.querySelector('input[type=range]');
+    num.value = st.notas[a.id];
+    rng.value = st.notas[a.id] || 0;
+    num.addEventListener('input', () => { let v = num.value.replace(',', '.'); const n = parseFloat(v);
+      num.classList.toggle('erro', v !== '' && (isNaN(n) || n < 0 || n > 1000));
+      st.notas[a.id] = v; rng.value = isNaN(n) ? 0 : Math.min(1000, Math.max(0, n)); update(); });
+    rng.addEventListener('input', () => { num.value = rng.value; num.classList.remove('erro'); st.notas[a.id] = rng.value; update(); });
+    el.querySelectorAll('.step button').forEach(b => b.addEventListener('click', () => {
+      st.pesos[i] = Math.max(1, Math.min(10, st.pesos[i] + +b.dataset.d)); st.preset = -1; update(); }));
+  });
+
+  // ----- presets -----
+  const chips = $('chips');
+  PRESETS.forEach((p, k) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = p.nome;
+    b.addEventListener('click', () => { st.pesos = p.p.slice(); st.preset = k; update(); }); chips.appendChild(b); });
+
+  // ----- modo -----
+  document.querySelectorAll('#modo button').forEach(b => b.addEventListener('click', () => { st.modo = b.dataset.m; update(); }));
+
+  $('corte').value = st.corte;
+  $('corte').addEventListener('input', e => { st.corte = e.target.value; update(); });
+  $('limpar').addEventListener('click', () => { AREAS.forEach(a => { st.notas[a.id] = ''; $('n' + a.id).value = ''; $('r' + a.id).value = 0; }); update(); });
+
+  // ----- número animado -----
+  let shown = 0, target = 0, raf = 0;
+  function animate() { cancelAnimationFrame(raf); const from = shown, t0 = performance.now();
+    const step = now => { const k = Math.min(1, (now - t0) / 450), e = 1 - Math.pow(1 - k, 3); shown = from + (target - from) * e; paintNum(); if (k < 1) raf = requestAnimationFrame(step); };
+    raf = requestAnimationFrame(step); }
+  function paintNum() { const s = fmt(shown); $('media').textContent = s; $('fmed').textContent = s; $('arc').setAttribute('stroke-dasharray', `${Math.max(0, Math.min(1000, shown))} 1000`); }
+
+  // marca dos 450 no arco
+  (() => { const a = Math.PI * (1 - 450 / 1000), cx = 100, cy = 104, r1 = 74, r2 = 98; const l = $('m450');
+    l.setAttribute('x1', cx + r1 * Math.cos(a)); l.setAttribute('y1', cy - r1 * Math.sin(a)); l.setAttribute('x2', cx + r2 * Math.cos(a)); l.setAttribute('y2', cy - r2 * Math.sin(a)); })();
+
+  const val = id => { const n = parseFloat(String(st.notas[id]).replace(',', '.')); return isNaN(n) ? null : Math.min(1000, Math.max(0, n)); };
+
+  function update() {
+    const pes = st.modo === 'pesos';
+    document.getElementById('app').classList.toggle('pesos', pes);
+    $('modo').dataset.m = st.modo;
+    document.querySelectorAll('#modo button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.m === st.modo)));
+    [...chips.children].forEach((b, k) => b.setAttribute('aria-pressed', String(k === st.preset)));
+    AREAS.forEach((a, i) => { $('p' + a.id).textContent = '×' + st.pesos[i]; const v = val(a.id) ?? 0; $('r' + a.id).style.setProperty('--p', v / 10 + '%'); });
+
+    const w = pes ? st.pesos : [1, 1, 1, 1, 1];
+    const vals = AREAS.map(a => val(a.id));
+    const filled = vals.filter(v => v !== null).length;
+    const sw = w.reduce((s, x) => s + x, 0);
+    const media = vals.reduce((s, v, i) => s + (v ?? 0) * w[i], 0) / sw;
+    const simples = vals.reduce((s, v) => s + (v ?? 0), 0) / 5;
+    target = media; animate();
+    $('rot').textContent = pes ? 'MÉDIA COM PESOS' : 'MÉDIA SIMPLES';
+    $('frot').textContent = pes ? 'COM PESOS' : 'MÉDIA';
+
+    // comparação simples x ponderada
+    const cmp = $('compara');
+    if (filled < 5) cmp.innerHTML = `Preencha as <b>5 notas</b> (faltam ${5 - filled}). Por enquanto, as vazias contam como 0.`;
+    else if (pes) { const d = media - simples; cmp.innerHTML = Math.abs(d) < 0.05 ? `Igual à média simples (<b>${fmt(simples)}</b>).` : `Média simples: <b>${fmt(simples)}</b> · com pesos você fica <b class="${d > 0 ? 'up' : 'down'}">${d > 0 ? '+' : ''}${fmt(d)}</b>`; }
+    else cmp.innerHTML = `Soma das notas: <b>${fmt(vals.reduce((s, v) => s + v, 0))}</b> ÷ 5`;
+
+    // barra de contribuição
+    const tot = vals.reduce((s, v, i) => s + (v ?? 0) * w[i], 0) || 1;
+    $('barra').innerHTML = AREAS.map((a, i) => `<i style="--c:${a.c};width:${((vals[i] ?? 0) * w[i]) / tot * 100}%"></i>`).join('');
+    $('leg').innerHTML = AREAS.map((a, i) => `<span style="--c:${a.c}">${a.nome} ${Math.round(((vals[i] ?? 0) * w[i]) / tot * 100)}%</span>`).join('');
+
+    // selos (ProUni/Fies usam a média simples das 5 notas)
+    const red = vals[4];
+    const okPF = filled === 5 && simples >= 450 && red > 0;
+    const setSelo = (id, ok, ready) => { const el = $(id); el.classList.toggle('ok', ready && ok); el.classList.toggle('no', ready && !ok); };
+    setSelo('sProuni', okPF, filled === 5); setSelo('sFies', okPF, filled === 5); setSelo('sSisu', red > 0, red !== null);
+
+    // meta
+    const c = parseFloat(String(st.corte).replace(',', '.')), falta = $('falta'), status = $('status');
+    if (isNaN(c) || filled < 5) { status.textContent = isNaN(c) ? 'Digite a nota de corte para ver a simulação.' : 'Preencha as 5 notas para simular.'; status.style.color = ''; falta.innerHTML = ''; }
+    else if (media >= c) { status.textContent = `Você passa a nota de corte por ${fmt(media - c)} pontos.`; status.style.color = 'var(--grn)'; falta.innerHTML = ''; }
+    else {
+      status.textContent = `Faltam ${fmt(c - media)} pontos na média. Para chegar lá mexendo em uma área só, você precisaria de:`; status.style.color = 'var(--amb)';
+      falta.innerHTML = AREAS.map((a, i) => { const need = vals[i] + (c - media) * sw / w[i];
+        return need > 1000 ? `<li class="impossivel"><span>${a.nome}</span><b>não dá só com ela</b></li>` : `<li><span>${a.nome}</span><b>${fmt(need)} (+${fmt(need - vals[i])})</b></li>`; }).join('');
+    }
+    store.set(st);
+  }
+
+  // compartilhar
+  $('share').addEventListener('click', async () => {
+    const pes = st.modo === 'pesos', m = $('media').textContent;
+    const txt = `Minha média ${pes ? 'com pesos' : 'simples'} do ENEM deu ${m}! Calcula a sua: ${location.origin + location.pathname} (via @mindloop_u)`;
+    try { if (navigator.share) { await navigator.share({ text: txt }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+    try { await navigator.clipboard.writeText(txt); const t = $('toast'); t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 1600); } catch (e) {}
+  });
+
+  // barra flutuante quando o resultado sai da tela
+  if ('IntersectionObserver' in window) new IntersectionObserver(([e]) => $('flutua').classList.toggle('on', !e.isIntersecting), { threshold: 0 }).observe($('res'));
+
+  update();
+})();
+</script>
+</body>
+</html>
